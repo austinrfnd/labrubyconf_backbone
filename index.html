@@ -19,87 +19,90 @@
     <section class='slides layout-widescreen template-default'>
 
       <article>
-        <h1>Presentation Title</h1>
-        <h2 class="subtitle">Presentation Subtitle</h2>
-        <p>by Danny Banks</p>
+        <h1>Rails, Backbone.js, and (a little Jasmine)</h1>
+        <h2 class="subtitle">LaRubyConf 2013</h2>
+        <p>by Austin Fonacier</p>
       </article>
       
       <article>
-        <h3>CoffeeScript</h3>
-        <h4 class='subtitle'>http://coffeescript.org/</h4>
+        <h3>Who I Am</h3>
+        <h4 class='subtitle'>Spokeo</h4>
+        <h5>Software Architect</h5>
+      </article>
+
+      <article>
+        <h3>Who We Are</h3>
+        <h4 class='subtitle'>Blogmate</h4>
+        <h4 class='subtitle'>Ben, Danny, Austin</h4>
         <ul class="build">
-          <li>Write Ruby, compiles to Javascript</li>
-          <li>Keeps code clean and minimal</li>
-          <li>@, ->, =></li>
-          <li>Fits well with Backbone (we'll see later)</li>
+          <li>Ben: Business, product and voice of reason</li>
+          <li>Austin: Ruby, Rails, and screwing up Danny's CSS</li>
+          <li>Danny: Design, Javascript, CSS, and everything</li>
         </ul>
       </article>
 
       <article>
-        <h3>Rails 3 (asset pipeline)</h3>
+        <h3>Warning!!!</h3>
         <ul class="build">
-          <li>Compiles all Javascript/CSS into 1 minified file</li>
-          <li>Useful for backbone applications so you can split javascript files up in an MVC way</li>
-        </ul>
-<pre class="prettyprint"><code data-language="coffeescript">//= require mustache
-//= require lib
-//= require_tree ./lib
-//= require_tree ../../templates
-//= require_tree ./models
-//= require_tree ./views
-//= require_tree ./collections
-  constructor: (attrs) ->
-    this.build_route_helper()
-</code></pre>
-      </article>
-
-      <article>
-        <h3>Underscore.js</h3>
-        <h4 class='subtitle'>http://underscorejs.org/</h4>
-        <ul class="build">
-          <li>Utility belt for JS developers</li>
-          <li>Provides a lot of functionality "classical" languages have</li>
-          <li>Will delegate to native implementations (if present) of things like forEach, map, reduce, filter</li>
-          <li>Backbone is built on top of underscore</li>
+          <li>I'm not a javascript expert</li>
+          <li>I'm not a Ruby or Rails expert</li>
+          <li>I'm just a semi-decent user of existing tools</li>
+          <li>I'm just just sharing my experiences of using tools and the outcome it has on our product</li>
+          <li>All javascript examples are in CoffeeScript</li>
         </ul>
       </article>
 
       <article>
-        <h3>Mustache</h3>
-        <h4 class='subtitle'>http://mustache.github.com/</h4>
+        <h3>Tech Introduction: Rails</h3>
+        <h4 class='subtitle'>http://rubyonrails.org/</h4>
         <ul class="build">
-          <li>Logic-less templates</li>
-          <li>SMT = mustache templates in Rails and JS</li>
-          <li>Fits nicely in backbone</li>
-        </ul>
-      </article>
-
-      <article>
-        <h3>Backbone</h3>
-        <h4 class='subtitle'>http://backbonejs.org/</h4>
-        <ul class="build">
-          <li>MV* Architecture for Javascript applications</li>
-          <li>Integrates with RESTful applications</li>
-          <li>Small (~ 6kb minified)</li>
-          <li>Fast</li>
-          <li>Subscribe/Publish architecture to connect views &amp; models</li>
+          <li>Ruby Framework</li>
+          <li>MVC Architecture</li>
+          <li>TDD Driven</li>
+          <li>REST-ful</li>
+          <li>Not much else on this...</li>
         </ul> 
       </article>
 
-
       <article>
-        <h3>Add Some Polish</h3>
-        <p><strong>Backbone Relational Models</strong><br />
-          <small><a href="#">https://github.com/PaulUithol/Backbone-relational</a></small></p>
-        <p><strong>Backbone Collection View</strong><br />
-          <small><a href="#">http://rickquantz.com/2012/02/rendering-backbone-collections-in-a-view/</a></small></p>
-        <p><strong>Global Event Sub/Pub</strong><br />
-          <small><a href="#">http://lostechies.com/derickbailey/2011/07/19/references-routing-and-the-event-aggregator-coordinating-views-in-backbone-js/</a></small></p>
+        <h3>Tech Introduction: Jasmine</h3>
+        <h4 class='subtitle'>http://pivotal.github.com/jasmine/</h4>
+        <ul class="build">
+          <li>BDD framework for testing Javascript</li>
+          <li>RSPEC-ish style</li>
+          <li>Jasmine gem for Ruby based integration</li>
+          <li>Can integrate with Selenium and continuous integraiton environments</li>
+        </ul> 
       </article>
 
       <article>
-        <h3>BAM</h3>
-        <h4>A rich javasccript application that is easy to manage and fits perfectly with your rails app</h4>
+        <h3>Tech Introduction: Backbone.js</h3>
+        <h4 class='subtitle'>http://pivotal.github.com/jasmine/</h4>
+        <ul class="build">
+          <li>BDD framework for testing Javascript</li>
+          <li>RSPEC-ish style</li>
+          <li>Jasmine gem for Ruby based integration</li>
+          <li>Can integrate with Selenium and continuous integraiton environments</li>
+        </ul> 
+      </article>      
+
+      <article>
+        <h3>Tech Introduction: Backbone.js</h3>
+        <h4 class='subtitle'>http://backbonejs.org/</h4> 
+        <ul class='build'>
+          <li>Javascript framework</li>
+          <li>MV* framework</li>
+          <li>Routes</li>
+          <li>Dependency: underscore.js</li>
+          <li>Small: 6kb</li>
+          <li>Just getting your appetite wet...</li>
+        </ul>
+      </article>
+
+
+      <article>
+        <h3>Enough Bullet Points</h3>
+        <h4>Let's Get Into It</h4>
         <img class='centered' src='img/yayyy.gif' />
       </article>
 
