@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Presentation</title>
+
+    <meta charset='utf-8' />
+    <link href='styles.css' rel='stylesheet' type='text/css' />
+    <link href="rainbow/themes/solarized-light.css" rel="stylesheet" type="text/css" />
+    <script src='google_slides.js'></script>
+    <script src="rainbow/rainbow.min.js"></script>
+    <script src="rainbow/language/generic.js"></script>
+    <script src="rainbow/language/ruby.js"></script>
+    <script src="rainbow/language/coffeescript.js"></script>
+
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen template-default'>
+
+      <article>
+        <h1>Presentation Title</h1>
+        <h2 class="subtitle">Presentation Subtitle</h2>
+        <p>by Danny Banks</p>
+      </article>
+      
+      <article>
+        <h3>CoffeeScript</h3>
+        <h4 class='subtitle'>http://coffeescript.org/</h4>
+        <ul class="build">
+          <li>Write Ruby, compiles to Javascript</li>
+          <li>Keeps code clean and minimal</li>
+          <li>@, ->, =></li>
+          <li>Fits well with Backbone (we'll see later)</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Rails 3 (asset pipeline)</h3>
+        <ul class="build">
+          <li>Compiles all Javascript/CSS into 1 minified file</li>
+          <li>Useful for backbone applications so you can split javascript files up in an MVC way</li>
+        </ul>
+<pre class="prettyprint"><code data-language="coffeescript">//= require mustache
+//= require lib
+//= require_tree ./lib
+//= require_tree ../../templates
+//= require_tree ./models
+//= require_tree ./views
+//= require_tree ./collections
+  constructor: (attrs) ->
+    this.build_route_helper()
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Underscore.js</h3>
+        <h4 class='subtitle'>http://underscorejs.org/</h4>
+        <ul class="build">
+          <li>Utility belt for JS developers</li>
+          <li>Provides a lot of functionality "classical" languages have</li>
+          <li>Will delegate to native implementations (if present) of things like forEach, map, reduce, filter</li>
+          <li>Backbone is built on top of underscore</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Mustache</h3>
+        <h4 class='subtitle'>http://mustache.github.com/</h4>
+        <ul class="build">
+          <li>Logic-less templates</li>
+          <li>SMT = mustache templates in Rails and JS</li>
+          <li>Fits nicely in backbone</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Backbone</h3>
+        <h4 class='subtitle'>http://backbonejs.org/</h4>
+        <ul class="build">
+          <li>MV* Architecture for Javascript applications</li>
+          <li>Integrates with RESTful applications</li>
+          <li>Small (~ 6kb minified)</li>
+          <li>Fast</li>
+          <li>Subscribe/Publish architecture to connect views &amp; models</li>
+        </ul> 
+      </article>
+
+
+      <article>
+        <h3>Add Some Polish</h3>
+        <p><strong>Backbone Relational Models</strong><br />
+          <small><a href="#">https://github.com/PaulUithol/Backbone-relational</a></small></p>
+        <p><strong>Backbone Collection View</strong><br />
+          <small><a href="#">http://rickquantz.com/2012/02/rendering-backbone-collections-in-a-view/</a></small></p>
+        <p><strong>Global Event Sub/Pub</strong><br />
+          <small><a href="#">http://lostechies.com/derickbailey/2011/07/19/references-routing-and-the-event-aggregator-coordinating-views-in-backbone-js/</a></small></p>
+      </article>
+
+      <article>
+        <h3>BAM</h3>
+        <h4>A rich javasccript application that is easy to manage and fits perfectly with your rails app</h4>
+        <img class='centered' src='img/yayyy.gif' />
+      </article>
+
+      <article>
+        <h3>Case Study: Blogmate</h3>
+        <h4>Austin + Danny + CRUMB = #winning</h4>
+        <ul>
+          <li>Started out writing vanilla javascript and jQuery</li>
+          <li>Things start to get messy when adding complex interactions and pushing/pulling from the db</li>
+          <li>Backbone saved my life</li>
+        </ul>
+        <img class='centered' src="img/critic.gif" />
+      </article>
+
+      <article>
+        <h3>Backbone: Model</h3>
+        <p>Core of backbone, a model has a 1-1 correlation with a model in Rails</p>
+<pre><code data-language="coffeescript">class @Annotation extends Backbone.Model
+  initialize: (attrs) ->
+    @annotation_text   = attrs['annotation_text']
+    @highlighted_text  = attrs['highlighted_text']
+    @user_id           = attrs['user_id']
+    @id                = attrs['id']
+    @users_articles_id = attrs['users_articles_id']
+
+  defaults: {
+
+  }
+
+  url: ->
+    u = "/annotations"
+    u = "#{u}/#{@id}" if @id
+    u
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Model (cont)</h3>
+        <h4 class="subtitle">get, set, save, destroy</h4>
+        <p>All you need is basic CRUD methods in your controller and you can start CRUDing in backbone</p>
+<pre><code data-language="coffeescript">@model.get('key') # would return 'value'
+@model.set({ key: 'value' })
+@model.destroy({
+  success: (response) ->
+  error: (response) ->
+})
+@model.save({ key: 'value' }, {
+  sucess: (model,response) ->
+  error: (response) ->
+})
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Relational Model</h3>
+        <p>Use the backbone relational model library to define relationships between models, basically we are getting Rails like architecture.</p>
+<pre><code data-language="coffeescript">class @UsersArticle extends Backbone.RelationalModel
+  
+  relations: [{
+    type: Backbone.HasMany,
+    key: 'list_items',
+    relatedModel: 'ListItem',
+    collectionType: 'ListItems',
+    reverseRelation: {
+      key: 'user_article'
+    }
+    }]
+
+  initialize: (attrs) ->
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Relational Model (cont)</h3>
+        <p>With relational models, in a view I can iterate over a model's related models like so:</p>
+<pre><code data-language="coffeescript">_.each(@model.get('list_items').models, (list_item) =>
+  # do stuff like list_item.get('id')
+  )
+</code></pre>
+
+      </article>
+
+      <article>
+        <h3>Backbone: Collection</h3>
+        <p>A collection of models, in rails you can just give it a JSON'd array of objects and all the models get populated</p>
+<pre><code data-language="coffeescript">class @AnnotationCollection extends Backbone.Collection
+  model: Annotation
+
+  initialize: ->
+
+  url: ->
+</code></pre>
+<pre><code data-language="coffeescript">annotationCollection = new AnnotationCollection( 
+  <%= @users_article.annotations.to_json() %> 
+);
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: View</h3>
+        <p>UI representation of a model</p>
+<pre><code data-language="coffeescript">class @ListView extends Backbone.View
+  
+  tagName: 'li'
+  template: SMT['list_item']
+
+  initialize: (attrs) ->
+    @model.on('change', this.render)
+    this.render()
+
+  events: {
+
+  }
+
+  render: =>
+    this.$el.html( this.template(@model.toJSON()) )
+    return this
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Collection View</h3>
+        <p>Extended the Backbone.View class to make a collection view that sets up and renders all sub views (model views)</p>
+<pre><code data-language="coffeescript">class @ListCollectionView extends Backbone.CollectionView
+
+  el: '#list_items'
+  collectionView: ListView
+
+  initialize: (attrs) ->
+    this.rendersCollectively()
+    this.render()
+    @collection.on('add', this.render, this)
+    
+  events: {
+    'click #new_list_btn' : 'newList'
+  }
+
+  render: =>
+    this.renderCollection()
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Collection View (cont)</h3>
+        <p>I extended the Backbone.View class to have methods like rendersCollectively and renderCollection</p>
+        <p>rendersCollectively = adds a _viewPointers object on the class that references all the sub-views, and adds all the models in the collection and renders them.</p>
+        <p>renderCollection = write all the sub views to the collection view.</p>
+      </article>
+
+      <article>
+        <h3>All Together Now</h3>
+<pre><code data-language="ruby">list = new List( <%= @list.to_json() %> );
+listView = new ListPage({ model: list });
+
+listCollection = new ListCollection( <%= @lists.to_json() %> );
+listCollectionView = new ListCollectionView({ collection : listCollection });
+
+userArticleCollection = new UserArticleCollection( <%= @users_articles.to_json() %> );
+userArticleCollectionView = new UserArticleCollectionView({ collection : userArticleCollection });
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Did not cover: Routes</h3>
+        <p>Backbone also has routing that is very similar to the way Rails does routes.</p>
+        <p>You could make a single page app and handle all links in Backbone if you wanted to.</p>
+      </article>
+
+      <article>
+        <h3>CRUMB Isn't For Every Project</h3>
+        <p>For projects that don't need to interact with models and keep things in sync, backbone is overkill.</p>
+        <p>Example: Bizshark does not need backbone.</p>
+        <p>CRUMB is for:</p>
+        <ul>
+          <li>Making lots of $.post or $.ajax calls</li>
+          <li>Interacting with UI representations of models</li>
+          <li>You have lots of functions/methods with callbacks</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>For More Info:</h3>
+        <ul>
+          <li><a href="#">http://addyosmani.github.com/backbone-fundamentals/</a></li>
+          <li>http://backboneboilerplate.com/</li>
+          <li>http://documentcloud.github.com/backbone/docs/backbone.html</li>
+          <li>http://documentcloud.github.com/backbone/docs/todos.html</li>
+          <li>I will also glady walk you  through my whole JS architecture in JS.</li>
+        </ul>
+      </article>
+
+      <article>
+        <img class='centered' src="img/gangnam_haters.gif" />
+      </article>
+
+    </section>
+
+  </body>
+</html>
