@@ -186,9 +186,45 @@ class @Article
       </article>
 
       <article>
+        <h3>Blogmate: Pre-backbone</h3>
+        <pre><code data-language='erb'>
+articles = []
+<% @articles.each do |article| %>
+  articles.push(new Article(<%= @article.to_json %>))
+<% end %>
+list = new List(<%= @list.to_json %>)
+list_view = new ListView({model: list})
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Blogmate: Pre-backbone</h3>
+        <pre><code data-language='coffeescript'>
+class @ListView
+  destroy_article: (article) ->
+    if article.destroy
+      $("#article_#{article.id}").remove
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Blogmate: Pre-backbone</h3>
+        <pre><code data-language='coffeescript'>
+class @Article
+  destory(list_view, article_view): ->
+    $.post "/lists/"+@id, {id: @id, _method:"DELETE", format: 'json'}, this.after_destroy.bind(this), 'json'
+  # callbacks
+  after_destroy: (data, status) ->
+    article_view.after_article_destroy(data['id'])
+    list_view.after_article_destroy(data['id'])
+        </code></pre>
+      </article>     
+
+      <article>
         <h3>Backbone: Model</h3>
         <p>Core of backbone, a model has a 1-1 correlation with a model in Rails</p>
-<pre><code data-language="coffeescript">class @Annotation extends Backbone.Model
+<pre><code data-language="coffeescript">
+class @Annotation extends Backbone.Model
   initialize: (attrs) ->
     @annotation_text   = attrs['annotation_text']
     @highlighted_text  = attrs['highlighted_text']
@@ -267,6 +303,7 @@ class @Article
 
   initialize: (attrs) ->
     @model.on('change', this.render)
+    @model.on('destroy', this.render)
     this.render()
 
   events: {
@@ -284,18 +321,6 @@ class @Article
         <p>Backbone also has routing that is very similar to the way Rails does routes.</p>
         <p>You could make a single page app and handle all links in Backbone if you wanted to.</p>
         <p>Wasn't part of blogmate v1 but Danny has a branch implementation out soon.</p>
-      </article>
-
-      <article>
-        <h3>CRUMB Isn't For Every Project</h3>
-        <p>For projects that don't need to interact with models and keep things in sync, backbone is overkill.</p>
-        <p>Example: Bizshark does not need backbone.</p>
-        <p>CRUMB is for:</p>
-        <ul>
-          <li>Making lots of $.post or $.ajax calls</li>
-          <li>Interacting with UI representations of models</li>
-          <li>You have lots of functions/methods with callbacks</li>
-        </ul>
       </article>
 
       <article>
