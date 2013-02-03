@@ -170,12 +170,15 @@ class @Article
         <h4 class='subtitle'>The Problems</h4>
         <ul class='build'>
           <li>When we wrote our first revision of javascript we thought we were hot shit.</li>
-          <li>Everything was organized, clean, and worked.</li>
-          <li>Until we tried to update views on model save, update and destroys</li>
+          <li>Everything was organized, object-ified, clean, and just worked.</li>
+          <li>Until we tried to update view(s) on model save, update and destroys.</li>
         </ul>
       </article>
 
       <article>
+<!--
+  So here we wanted to show that when a list item (article), gets destroyed, there are multiple views that get updated
+-->
         <h3>Blogmate: Pre-backbone</h3>
         <img class='centered' src="img/list_show.png" />
       </article>
@@ -186,18 +189,39 @@ class @Article
       </article>
 
       <article>
+<!--
+  This is sampe of the haml view from the above slides.
+  Notice that multiple views use the same model.
+-->
         <h3>Blogmate: Pre-backbone</h3>
         <pre><code data-language='erb'>
-articles = []
-<% @articles.each do |article| %>
-  articles.push(new Article(<%= @article.to_json %>))
-<% end %>
-list = new List(<%= @list.to_json %>)
-list_view = new ListView({model: list})
+:javascript
+  articles = []
+  <% @articles.each do |article| %>
+    articles.push(new Article(<%= @article.to_json %>))
+  <% end %>
+  article_collection = new ArticleCollection(articles)
+  list = new List(<%= @list.to_json %>)
+  # bottom part with all the lists
+  list_view = new ListView({model: list, articles: article_collection})
+  # Top part with all the stats
+  list_info = new ListInfo({model: list, articles: article_collection})
         </code></pre>
       </article>
 
       <article>
+<!--
+  So it looks ok right? but it's not.
+  Because article.destroy is an async callback to the server.
+  So given this is the way it is, the view doesn't REALLY know if the article has been destroy or not.
+  Because that "knowledge" of it actually being destroy is in the article model's after_destroy function!
+
+  We only realized this when there was a bug in our backend that wouldn't actually destroy an article but
+  the view would update anyways.
+
+  Also this bug applies to any updates and creates where we wanted our Javascript models to persist the data
+  coming back from the server.
+-->
         <h3>Blogmate: Pre-backbone</h3>
         <pre><code data-language='coffeescript'>
 class @ListView
@@ -208,6 +232,12 @@ class @ListView
       </article>
 
       <article>
+<!--
+  So we thought about pushing view updating into the model.
+  It made sense for all of 10 seconds.  Why are we passing models into views initializers and also views into saves, updates and destroys?
+
+  This doesn't make any sense.  It literally creates a web of code and callbacks that is unsustainable.
+-->
         <h3>Blogmate: Pre-backbone</h3>
         <pre><code data-language='coffeescript'>
 class @Article
@@ -244,7 +274,8 @@ class @Annotation extends Backbone.Model
         <ul class='build'>
           <li>Similar-ish to ActiveRecord models</li>
           <li>Expects JSON from the backend</li>
-          <li>Assumes a REST backend</li>
+          <li>Assumes a 
+      </article>REST backend</li>
         </ul>
           <p>
             GET /articles/1
@@ -252,7 +283,6 @@ class @Annotation extends Backbone.Model
             PUT /articles/1
             DELETE /articles/1
           </p>
-      </article>
 
       <article>
         <h3>Backbone: Model (cont)</h3>
