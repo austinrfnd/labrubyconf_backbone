@@ -28,17 +28,14 @@
         <h3>Who I Am</h3>
         <h4 class='subtitle'>Spokeo</h4>
         <h5>Software Architect</h5>
+        <img class='centered' src='img/austin_image.jpg' style="width: 35%; height: 70%"/>
       </article>
 
       <article>
         <h3>Who We Are</h3>
         <h4 class='subtitle'>Blogmate</h4>
         <h4 class='subtitle'>Ben, Danny, Austin</h4>
-        <ul class="build">
-          <li>Ben: Business, product and voice of reason</li>
-          <li>Austin: Ruby, Rails, and screwing up Danny's CSS</li>
-          <li>Danny: Design, Javascript, CSS, and everything</li>
-        </ul>
+        <img class='centered' src='img/blogmate_team_photo.jpg' style='width: 60%;' />
       </article>
 
       <article>
@@ -100,9 +97,10 @@
         <h3>Blogmate: Pre-backbone</h3>
         <ul class='build'>
           <li>Projects may often start with built-in Rails helpers (EX: link_to_remote)</li>
-          <li>Blogmate bypassed that.</li>
-          <li>Every view had a view class.</li>
-          <li>Every model had a model class.</li>
+          <li>Then projects start to get an well meaning application.js that simply explodes.</li>
+          <li>Blogmate bypassed all that.</li>
+          <li>Every view had a view JS class.</li>
+          <li>Every model had a model JS class.</li>
         </ul>
       </article>
 
@@ -123,16 +121,9 @@ class @List
       data["_method"] = "PUT"
       data['id'] = @id
       $.post "/lists/"+@id, data, this.after_update.bind(this), 'json'
-    # If we dont' have an id I'll assume it's a create
+    # If we don't have an id I'll assume it's a create
     else
       $.post("/lists/", data, this.after_create.bind(this), 'json').status
-
-  destroy: ->
-    $.post "/lists/"+@id, {id: @id, _method:"DELETE", format: 'json'}, this.after_destroy.bind(this), 'json'
-  
-  # callbacks
-  after_destroy: (data, status) ->
-    # Do whatever we need to after we destroy
 
   after_update: (data, status) ->
     # Do whatever we need to after we update
@@ -147,7 +138,8 @@ class @List
         <h3>Blogmate: Pre-backbone The View</h3>
 <pre><code data-language="coffeescript">
 class @Article
-  init: ->
+  init: (article) ->
+    @article = article
     this.cacheElements()
     this.bindEvents()
     this.renderAll()
@@ -171,7 +163,53 @@ class @Article
         <ul class='build'>
           <li>When we wrote our first revision of javascript we thought we were hot shit.</li>
           <li>Everything was organized, object-ified, clean, and just worked.</li>
-          <li>Until we tried to update view(s) on model save, update and destroys.</li>
+          <li>Until we realized we maybe weren't the hottest shits ever.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Handling Async-events</h3>
+        <h4 class='subtitle'>The View</h4>
+        <pre><code data-language='coffeescript'>
+class @ListSideView
+  new_list: (list_name) ->
+    list = new List({name: list_name})
+    if list.save
+      $('#list').append( SMT['list_item'](list.toHash) )
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Handling Async-events</h3>
+        <h4 class='subtitle'>The Model</h4>
+        <pre><code data-language='coffeescript'>
+class @List
+  save: ->
+    data = {list: {name: @name, description: @description}, _method:"POST" , format: 'json'}
+      $.post("/lists/", data, this.after_create.bind(this), 'json').status
+
+  after_create: (data, status) -> 
+    @id = data['id']
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Handling Async-events</h3>
+        <ul class='build'>
+          <li>When we were in development, our code worked.</li>
+          <li>In non-development environments, it was a different story</li>
+          <li>Because our views didn't tap into the models callbacks</li>
+          <li>In the view, our model instance may have not gotten the response from the server before rendering</li>
+        </ul>
+      </article>
+
+      <article>
+        <!-- Chart here? -->
+        <h3>Updating Multiple Views</h3>
+        <ul class='build'>
+          <li>Given our JS Architecture of view classes and model classes</li>
+          <li>Our actual HAML views soon had multiple javascript views</li>
+          <li>Problems arose when we wanted to update our views when a model changed, created or destroy</li>
         </ul>
       </article>
 
@@ -180,33 +218,17 @@ class @Article
   So here we wanted to show that when a list item (article), gets destroyed, there are multiple views that get updated
 -->
         <h3>Blogmate: Pre-backbone</h3>
-        <img class='centered' src="img/list_show.png" />
+        <img class='centered' src="img/list_show.png" style='width:90%' />
       </article>
 
       <article>
         <h3>Blogmate: Pre-backbone</h3>
-        <img class='centered' src="img/list_show_after.png" />
+        <img class='centered' src="img/list_show_multiple_views.png" style='width:90%' />
       </article>
 
       <article>
-<!--
-  This is sampe of the haml view from the above slides.
-  Notice that multiple views use the same model.
--->
         <h3>Blogmate: Pre-backbone</h3>
-        <pre><code data-language='erb'>
-:javascript
-  articles = []
-  <% @articles.each do |article| %>
-    articles.push(new Article(<%= @article.to_json %>))
-  <% end %>
-  article_collection = new ArticleCollection(articles)
-  list = new List(<%= @list.to_json %>)
-  # bottom part with all the lists
-  list_view = new ListView({model: list, articles: article_collection})
-  # Top part with all the stats
-  list_info = new ListInfo({model: list, articles: article_collection})
-        </code></pre>
+        <img class='centered' src="img/list_show_after.png" style='width:90%' />
       </article>
 
       <article>
@@ -232,6 +254,17 @@ class @ListView
       </article>
 
       <article>
+        <h3>Blogmate: Pre-backbone</h3>
+        <pre><code data-language='coffeescript'>
+class @ListSideView
+  update_list: (list_name) ->
+    @list.name = list_name
+    if list.save
+      # update the DOM
+        </code></pre>
+      </article>
+
+      <article>
 <!--
   So we thought about pushing view updating into the model.
   It made sense for all of 10 seconds.  Why are we passing models into views initializers and also views into saves, updates and destroys?
@@ -249,6 +282,22 @@ class @Article
     list_view.after_article_destroy(data['id'])
         </code></pre>
       </article>     
+
+      <article>
+        <h3>Backbone: Model</h3>
+        <ul class='build'>
+          <li>Similar-ish to ActiveRecord models</li>
+          <li>Expects JSON from the backend</li>
+          <li>Assumes a REST backend</li>
+          <li>
+              GET /articles/1<br />
+              POST /articles<br />
+              PUT /articles/1<br />
+              DELETE /articles/1<br />
+            </ul>
+          </li>
+        </ul>
+      </article>
 
       <article>
         <h3>Backbone: Model</h3>
@@ -270,19 +319,16 @@ class @Annotation extends Backbone.Model
       </article>
 
       <article>
-        <h3>Backbone: Model (cont).</h3>
+        <h3>Backbone Model Benefits</h3>
         <ul class='build'>
-          <li>Similar-ish to ActiveRecord models</li>
-          <li>Expects JSON from the backend</li>
-          <li>Assumes a 
-      </article>REST backend</li>
+          <li>DRYer code</li>
+          <li>Less code</li>
+          <li>Built-in validations</li>
+          <li>Built-in helper methods (toJSON)</li>
+          <li>Rails Ready</li>
+          <li>Faster development</li>
         </ul>
-          <p>
-            GET /articles/1
-            POST /articles
-            PUT /articles/1
-            DELETE /articles/1
-          </p>
+      </article>
 
       <article>
         <h3>Backbone: Model (cont)</h3>
@@ -303,13 +349,12 @@ class @Annotation extends Backbone.Model
 
       <article>
         <h3>Backbone: Collection</h3>
-        <p>A collection of models, in rails you can just give it a JSON'd array of objects and all the models get populated</p>
+        <p>
+          A collection of models, in rails you can just give it a JSON'd array of objects and all the models get populated.
+          Backbone adds a bunch of functionality on top of a collection.  This includes easy filtering, sorting, and aggregation.
+        </p>
 <pre><code data-language="coffeescript">class @AnnotationCollection extends Backbone.Collection
   model: Annotation
-
-  initialize: ->
-
-  url: ->
 </code></pre>
 <pre><code data-language="coffeescript">annotationCollection = new AnnotationCollection( 
   <%= @users_article.annotations.to_json() %> 
@@ -325,7 +370,7 @@ class @Annotation extends Backbone.Model
 
       <article>
         <h3>Backbone: View</h3>
-        <p>View is convention of code organization.  It is very flexible.  We will scratch the surface</p>
+        <p>View is convention of code organization.  It is very flexible.  We will only scratch the surface</p>
 <pre><code data-language="coffeescript">class @ListView extends Backbone.View
   
   tagName: 'li'
@@ -347,10 +392,62 @@ class @Annotation extends Backbone.Model
       </article>
 
       <article>
+        <h3>Built-in Backbone Events</h3>
+        <p>
+          Backbone has a big catalogue of events that can be global.
+
+          Such events include: add, remove, reset, sync, change, etc.
+        </p>
+<pre><code data-language="coffeescript">
+  @article_collection.on('add', list_view.update_view.bind(@article_collection))
+  @article_collection.on('add', list_info_view.update_views.bind(@article_collection))
+</code></pre>
+
+      </article>
+
+      <article>
+        <h3>Wait where's my Jasmine?</h3>
+<pre><code data-language="coffeescript">
+describe "ApplicationView", ->
+  beforeEach ->
+    loadFixtures("application")
+    @application = new ApplicationView({el: $('html'), user_settings: new UserSettings(theme: 'light_theme', feed_length: true)})
+
+  it "should on initialize cacheElements", ->
+    expect(@application.$html).toBeDefined(/head/)
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Jasmine Tips</h3>
+        <ul class='build'>
+          <li>Stub servers calls.</li>
+          <li>We used sinon (http://sinonjs.org/)</li>
+          <li>"Fixtures" are the bare minimum HTML pages to make your JS DOM implementation run.</li>
+          <li>A bit of a learning curve and some upkeep.</li>
+        </ul>
+      </article>
+
+      <article>
         <h3>Did not cover: Routes</h3>
-        <p>Backbone also has routing that is very similar to the way Rails does routes.</p>
-        <p>You could make a single page app and handle all links in Backbone if you wanted to.</p>
-        <p>Wasn't part of blogmate v1 but Danny has a branch implementation out soon.</p>
+        <ul>
+          <li>Backbone also has routing that is very similar to the way Rails does routes.</li>
+          <li>You could make a single page app and handle all links in Backbone if you wanted to.</li>
+          <li>Wasn't part of blogmate v1 but Danny has a branch implementation out soon.</li>
+          <li>Amend presentation slides with routes findings</li>
+        </ul>
+
+      </article>
+
+      <article>
+        <h3>In Conclusion</h3>
+        <ul class='build'>
+          <li>Backbone.js <strike>Framework</strike> Foundation</li>
+          <li>Backbone views are open-ended allow developers to structure the code however they want to</li>
+          <li>Backbone events module = life saver</li>
+          <li>We came from the events, and we stayed for everything else.</li>
+          <li>Jasmine.js to avoid alert driven javascript development.</li>
+        </ul>
       </article>
 
       <article>
@@ -360,7 +457,6 @@ class @Annotation extends Backbone.Model
           <li>http://backboneboilerplate.com/</li>
           <li>http://documentcloud.github.com/backbone/docs/backbone.html</li>
           <li>http://documentcloud.github.com/backbone/docs/todos.html</li>
-          <li>I will also glady walk you  through my whole JS architecture in JS.</li>
         </ul>
       </article>
 
