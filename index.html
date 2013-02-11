@@ -79,9 +79,9 @@
           <li>Javascript framework</li>
           <li>MV* framework</li>
           <li>Routes</li>
+          <li>Small: 6kb</li>          
           <li>Dependency: underscore.js</li>
           <li>Template agnostic</li>
-          <li>Small: 6kb</li>
           <li>Just getting your appetite wet...</li>
         </ul>
       </article>
@@ -281,7 +281,7 @@ class @Article
     article_view.after_article_destroy(data['id'])
     list_view.after_article_destroy(data['id'])
         </code></pre>
-      </article>     
+      </article>
 
       <article>
         <h3>Backbone: Model</h3>
@@ -348,22 +348,21 @@ class @Annotation extends Backbone.Model
       </article>
 
       <article>
-        <h3>Backbone: Collection</h3>
+        <h3>Built-in Backbone Events</h3>
         <p>
-          A collection of models, in rails you can just give it a JSON'd array of objects and all the models get populated.
-          Backbone adds a bunch of functionality on top of a collection.  This includes easy filtering, sorting, and aggregation.
+          Backbone has a big catalogue of events that can be global.
+
+          Such events include: add, remove, reset, sync, change, etc.
         </p>
-<pre><code data-language="coffeescript">class @AnnotationCollection extends Backbone.Collection
-  model: Annotation
+<pre><code data-language="coffeescript">
+  @article_collection.on('add', list_view.update_view.bind(@article_collection))
+  @article_collection.on('remove', list_info_view.update_views.bind(@article_collection))
 </code></pre>
-<pre><code data-language="coffeescript">annotationCollection = new AnnotationCollection( 
-  <%= @users_article.annotations.to_json() %> 
-);
-</code></pre>
-      </article>
+      </article>      
+
 
       <article>
-        <h3>Backbone: View (cont)</h3>
+        <h3>Backbone: View</h3>
         <p> The view example represents the highlighted box.</p>
         <img class='centered' src="img/list_show_highlight.png" />
       </article>
@@ -382,7 +381,8 @@ class @Annotation extends Backbone.Model
     this.render()
 
   events: {
-
+    'dblclick #list_description, #list_name' : "edit_list",
+    'keydown #list_description, #list_name'  : "save_list"
   }
 
   render: =>
@@ -392,17 +392,47 @@ class @Annotation extends Backbone.Model
       </article>
 
       <article>
-        <h3>Built-in Backbone Events</h3>
+        <h3>Using A View</h3>
+        <pre><code data-language="coffeescript">
+list_view = new ListView({model: list, el: $("list_#{list.idid}")})
+        </code></pre>
+
+        <pre><code data-language="coffeescript">
+list_view = new ListSideView({list_collection: lists, el: $("list_#{list.idid}")})
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Collection</h3>
         <p>
-          Backbone has a big catalogue of events that can be global.
-
-          Such events include: add, remove, reset, sync, change, etc.
+          A collection of models, in rails you can just give it a JSON'd array of objects and all the models get populated.
+          Backbone adds a bunch of functionality on top of a collection.  This includes easy filtering, sorting, and aggregation.
         </p>
-<pre><code data-language="coffeescript">
-  @article_collection.on('add', list_view.update_view.bind(@article_collection))
-  @article_collection.on('add', list_info_view.update_views.bind(@article_collection))
+<pre><code data-language="coffeescript">class @AnnotationCollection extends Backbone.Collection
+  model: Annotation
 </code></pre>
+<pre><code data-language="coffeescript">annotationCollection = new AnnotationCollection( 
+  <%= @users_article.annotations.to_json() %> 
+);
+</code></pre>
+      </article>
 
+      <article>
+        <h3>Backbone: Collection (cont.)</h3>
+<pre><code data-language="coffeescript">
+var friends = new Backbone.Collection([
+  {name: "Athos",      job: "Musketeer"},
+  {name: "Porthos",    job: "Musketeer"},
+  {name: "Aramis",     job: "Musketeer"},
+  {name: "d'Artagnan", job: "Guard"},
+])
+
+# Give me the firends where job is Musketeer
+musketeers = friends.where({job: "Musketeer"})
+
+# Pluck
+friend_names = friends.pluck('name')
+</code></pre>
       </article>
 
       <article>
@@ -434,9 +464,8 @@ describe "ApplicationView", ->
           <li>Backbone also has routing that is very similar to the way Rails does routes.</li>
           <li>You could make a single page app and handle all links in Backbone if you wanted to.</li>
           <li>Wasn't part of blogmate v1 but Danny has a branch implementation out soon.</li>
-          <li>Amend presentation slides with routes findings</li>
+          <li>Amend presentation slides in the future with routes findings</li>
         </ul>
-
       </article>
 
       <article>
@@ -447,6 +476,7 @@ describe "ApplicationView", ->
           <li>Backbone events module = life saver</li>
           <li>We came from the events, and we stayed for everything else.</li>
           <li>Jasmine.js to avoid alert driven javascript development.</li>
+          <li>For slide updates check http://github.com/austinrfnd or http://blog.blogmate.is</li>
         </ul>
       </article>
 
