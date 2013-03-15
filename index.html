@@ -21,12 +21,12 @@
       <article>
         <h1>Rails, Backbone.js, and (a little Jasmine)</h1>
         <h2 class="subtitle">LaRubyConf 2013</h2>
-        <p>by Austin Fonacier (and Danny Banks)</p>
+        <p>by Austin Fonacier @austinrfnd (and Danny Banks @dbanksdesign)</p>
       </article>
       
       <article>
-        <h3>Who I Am</h3>
-        <h4 class='subtitle'>Spokeo</h4>
+        <h3>Who Am I?</h3>
+        <h4 class='subtitle'>Spokeo (Pasadena, CA)</h4>
         <h5>Software Architect</h5>
         <img class='centered' src='img/austin_image.jpg' style="width: 35%; height: 70%"/>
       </article>
@@ -67,8 +67,8 @@
         <ul class="build">
           <li>BDD framework for testing Javascript</li>
           <li>RSPEC-ish style</li>
+		<li>Can integrate with Selenium and continuous integration environments</li>
           <li>Jasmine gem for Ruby based integration</li>
-          <li>Can integrate with Selenium and continuous integraiton environments</li>
         </ul> 
       </article>
 
@@ -82,15 +82,8 @@
           <li>Small: 6kb</li>          
           <li>Dependency: underscore.js</li>
           <li>Template agnostic</li>
-          <li>Just getting your appetite wet...</li>
+          <li>More to come...</li>
         </ul>
-      </article>
-
-
-      <article>
-        <h3>Enough Bullet Points</h3>
-        <h4>Let's Get Into It</h4>
-        <img class='centered' src='img/yayyy.gif' />
       </article>
 
       <article>
@@ -103,6 +96,12 @@
           <li>Every model had a model JS class.</li>
         </ul>
       </article>
+
+      <article>
+        <h3>Enough Bullet Points</h3>
+        <h4>Let's Get Into It</h4>
+        <img class='centered' src='img/yayyy.gif' />
+      </article>      
 
       <article class='smaller'>
         <h3>Blogmate: Pre-backbone The Model</h3>
@@ -207,6 +206,7 @@ class @List
         <!-- Chart here? -->
         <h3>Updating Multiple Views</h3>
         <ul class='build'>
+          <li>Our views soon had multiple views</li>
           <li>Given our JS Architecture of view classes and model classes</li>
           <li>Our actual HAML views soon had multiple javascript views</li>
           <li>Problems arose when we wanted to update our views when a model changed, created or destroy</li>
@@ -284,6 +284,107 @@ class @Article
       </article>
 
       <article>
+        <h3>Backbone: View</h3>
+        <pre><code data-language="coffeescript">class @DocumentRow extends Backbone.View
+
+  tagName: "li"
+  className: "document-row"
+
+  events:
+    "click .icon":          "open"
+    "click .button.edit":   "openEditDialog"
+    "click .button.delete": "destroy"
+
+  initialize: ->
+    this.render()
+
+  render: ->
+    $('body').html( this.$el )
+
+        </code></pre>
+      </article>
+
+<!-- 
+  Creating a div element with classname 'loader'
+  Arbitrary properties on the view
+  Instance variable
+  _.extend
+  loader.time = 10000
+  loader.options = {time: 10000, $target: $('#main')}
+ -->
+
+      <article>
+        <h3>Backbone: View</h3>
+        <pre><code data-language='coffeescript'>class @Loader extends Backbone.View
+
+  className: 'loader'
+  step_time: 10
+  width: 0
+
+  initialize: (@options) ->
+    _.extend(@, @options)
+    this.render()
+
+
+  render: ->
+    this.$el.html( $('&lt;div /&gt;').addClass('loader_bar') )
+    @$target.html( this.$el )
+        </code></pre>
+        <pre><code data-language='coffeescript'>loader = new Loader({time: 10000, $target: $('#main')})</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: View</h3>
+        <p> The view example represents the highlighted box.</p>
+        <img class='centered' src="img/list_show_highlight.png" />
+      </article>
+
+      <article>
+        <h3>Backbone: View</h3>
+        <p>View is convention of code organization.  It is very flexible.  We will only scratch the surface</p>
+<pre><code data-language="coffeescript">class @ListView extends Backbone.View
+  
+  tagName: 'li'
+  template: SMT['list_item']
+
+  initialize: (attrs) ->
+    @model.on('change', this.render, this)
+    this.render()
+
+  events: 
+    'dblclick #list_description, #list_name' : "edit_list"
+
+  render: ->
+    this.$el.html( this.template(@model.toJSON()) )
+    ...
+</code></pre>
+      </article>
+
+      <article>
+        <h3>View Inheritence</h3>
+        <pre><code data-language="coffeescript">class @BaseView extends Backbone.View
+
+  # Set up the default DOM
+  id: 'app_wrapper_inner'
+  className: 'app_wrapper_inner transition'
+
+  # Remove and unbind the view,
+  # called in the router so we don't get zombie views
+  close: ->
+    this.on_close?() # if this.on_close
+    this.remove()
+    this.unbind()
+        </code></pre>
+      </article>
+
+      <article>
+        <h3>Using A View (cont.)</h3>
+
+        <p>Views are very flexible, think of them as <em>anything</em> you would put in the views directory (partials included).</p>
+        <img class='centered' src='img/view_outlines.png' />
+      </article>
+
+      <article>
         <h3>Backbone: Model</h3>
         <ul class='build'>
           <li>Similar-ish to ActiveRecord models</li>
@@ -305,16 +406,9 @@ class @Article
 <pre><code data-language="coffeescript">
 class @Annotation extends Backbone.Model
   initialize: (attrs) ->
-    @annotation_text   = attrs['annotation_text']
-    @highlighted_text  = attrs['highlighted_text']
-    @user_id           = attrs['user_id']
-    @id                = attrs['id']
-    @users_articles_id = attrs['users_articles_id']
 
-  url: ->
-    u = "/annotations"
-    u = "#{u}/#{@id}" if @id
-    u
+  # Because we are using a model outside of an annotation
+  urlRoot : '/annotations'
 </code></pre>
       </article>
 
@@ -333,17 +427,22 @@ class @Annotation extends Backbone.Model
       <article>
         <h3>Backbone: Model (cont)</h3>
         <h4 class="subtitle">get, set, save, destroy</h4>
-        <p>All you need is basic CRUD methods in your backend and you can start CRUDing in backbone</p>
-<pre><code data-language="coffeescript">@model.get('key') # would return 'value'
-@model.set({ key: 'value' })
-@model.destroy({
-  success: (response) ->
-  error: (response) ->
-})
-@model.save({ key: 'value' }, {
-  sucess: (model,response) ->
-  error: (response) ->
-})
+<pre><code data-language="coffeescript">var list = new List({id: 1})
+list.fetch() 
+list.get('name')
+list.attributes
+
+# SETTERS
+list.set({ name: 'new_name' })
+list.save 
+list.save({ name: 'new_name' }, {
+  wait: true
+  success: (model, response) =>
+  error: (model, response) =>
+  })
+
+# DESTROYERS
+list.destroy()
 </code></pre>
       </article>
 
@@ -354,53 +453,19 @@ class @Annotation extends Backbone.Model
 
           Such events include: add, remove, reset, sync, change, etc.
         </p>
+<!-- 
+  listenTo = no need to unbind events when you remove the view
+  this.remove()
+-->
 <pre><code data-language="coffeescript">
-  @article_collection.on('add', list_view.update_view.bind(@article_collection))
-  @article_collection.on('remove', list_info_view.update_views.bind(@article_collection))
+  @article_collection.on('add', this.add_one, this)
+  @article_collection.on('remove', this.remove_one, this)
+
+  # New to Backbone 0.9.10
+  this.listenTo(this.model, "change", this.render)
 </code></pre>
       </article>      
 
-
-      <article>
-        <h3>Backbone: View</h3>
-        <p> The view example represents the highlighted box.</p>
-        <img class='centered' src="img/list_show_highlight.png" />
-      </article>
-
-      <article>
-        <h3>Backbone: View</h3>
-        <p>View is convention of code organization.  It is very flexible.  We will only scratch the surface</p>
-<pre><code data-language="coffeescript">class @ListView extends Backbone.View
-  
-  tagName: 'li'
-  template: SMT['list_item']
-
-  initialize: (attrs) ->
-    @model.on('change', this.render)
-    @model.on('destroy', this.render)
-    this.render()
-
-  events: {
-    'dblclick #list_description, #list_name' : "edit_list",
-    'keydown #list_description, #list_name'  : "save_list"
-  }
-
-  render: =>
-    this.$el.html( this.template(@model.toJSON()) )
-    return this
-</code></pre>
-      </article>
-
-      <article>
-        <h3>Using A View</h3>
-        <pre><code data-language="coffeescript">
-list_view = new ListView({model: list, el: $("list_#{list.idid}")})
-        </code></pre>
-
-        <pre><code data-language="coffeescript">
-list_view = new ListSideView({list_collection: lists, el: $("list_#{list.idid}")})
-        </code></pre>
-      </article>
 
       <article>
         <h3>Backbone: Collection</h3>
@@ -419,19 +484,37 @@ list_view = new ListSideView({list_collection: lists, el: $("list_#{list.idid}")
 
       <article>
         <h3>Backbone: Collection (cont.)</h3>
-<pre><code data-language="coffeescript">
-var friends = new Backbone.Collection([
+<pre><code data-language="coffeescript">var friends = new Backbone.Collection([
   {name: "Athos",      job: "Musketeer"},
   {name: "Porthos",    job: "Musketeer"},
   {name: "Aramis",     job: "Musketeer"},
   {name: "d'Artagnan", job: "Guard"},
 ])
 
-# Give me the firends where job is Musketeer
+# Give me the friends where job is Musketeer
 musketeers = friends.where({job: "Musketeer"})
 
 # Pluck
 friend_names = friends.pluck('name')
+</code></pre>
+      </article>
+
+      <article>
+        <h3>Backbone: Collection (cont.)</h3>
+<pre><code data-language="coffescript"># In collection
+class @App.Collections.Lists extends Backbone.Collection
+  model: App.Models.List
+
+  initialize: ->
+
+  # Sort by position, descending
+  comparator: (model) ->
+    model.get('name')
+
+# In a view
+@lists.push({name: "Joystiq List"})
+@lists.push({name: "Animal List"})
+@lists.sort()
 </code></pre>
       </article>
 
@@ -491,6 +574,7 @@ describe "ApplicationView", ->
       </article>
 
       <article>
+        <h3>Thank You</h3>
         <img class='centered' src="img/gangnam_haters.gif" />
       </article>
 
